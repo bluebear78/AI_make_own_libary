@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
-
-class SGD:
+class linear_model_gd:
     def __init__(self, fit_intercept=True, copy_X=True,
-                 alpha=0.0001, epochs=100000, weight_decay=0.9):
+                 alpha=0.0001, epochs=1000000, weight_decay=0.9):
         self.fit_intercept = fit_intercept
         self.copy_X = copy_X
         self._alpha = alpha
@@ -31,10 +30,15 @@ class SGD:
     def gradient(self, X, theta):
         predictions = X.dot(theta)
         m = X.shape[0]
-        for i in range(theta.size):
-            partial_marginal = X[:,i]
-            errors_xi = (predictions - y) * partial_marginal
-            theta[i] = theta[i] - self._alpha * (1.0/m) * errors_xi.sum()
+        
+        hypo = (predictions-y).dot(X)
+        theta = theta - self._alpha * (1.0/m) * hypo
+        
+        #for i in range(theta.size):
+        #    partial_marginal = X[:,i]
+        #    errors_xi = (predictions - y) * partial_marginal
+        #    theta[i] = theta[i] - self._alpha * (1.0/m) * errors_xi.sum()
+        
         return theta
     
     def fit(self,X,y):
@@ -53,6 +57,7 @@ class SGD:
             if _ % 1000 == 0:
                 theta_history.append(theta)
                 cost_history.append(self.cost(self.hypothesis_function(X,theta),y))
+        
         self._coef = theta
         return theta,np.array(cost_history),np.array(theta_history)
 
@@ -60,7 +65,6 @@ class SGD:
         
     def predict(self, X):
         return X.dot(self.coef)
-        
 
     @property
     def coef(self):
@@ -81,6 +85,13 @@ class SGD:
 if __name__ == "__main__":
     X = np.array([[1,2],[1,4],[1,5]])
     y = np.array([4,8,12])
-    my_sgd = linear_gradient_descent(fit_intercept=True)
-    my_sgd.fit(X,y)
-    mg_sgd.predict(X)
+    my_lgd = linear_model_gd(fit_intercept=True)
+    my_lgd.fit(X,y)
+
+    from sklearn import linear_model
+    regr = linear_model.LinearRegression()
+    regr.fit(X,y)
+    testX = np.array([[6,2],[2,4],[4,5]])
+    regr.predict(testX)
+    my_lgd.predict(testX)
+    
